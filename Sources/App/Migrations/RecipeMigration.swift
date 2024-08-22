@@ -27,6 +27,7 @@ struct RecipeMigration: AsyncMigration {
             .field("guide", .string, .required)
             .field("is_public", .bool, .required)
             .field("time", .int)
+            .field("allergens", .array(of: .string))
             .field("user", .uuid, .references(User.schema, .id))
             .create()
     }

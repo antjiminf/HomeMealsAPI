@@ -12,6 +12,8 @@ final class Ingredient: Model {
     @Field(key: "name") var name: String
     @Enum(key: "category") var category: FoodCategory
     
+    @Siblings(through: RecipeIngredient.self, from: \.$ingredient, to: \.$recipe) var recipes: [Recipe]
+    
     init() {}
     
     init(id: UUID? = nil, name: String, category: FoodCategory) {

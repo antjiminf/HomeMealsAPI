@@ -12,17 +12,25 @@ final class Recipe: Model {
     @Field(key: "guide") var guide: String
     @Field(key: "is_public") var isPublic: Bool
     @Field(key: "time") var time: Int
+    @Field(key: "allergens") var allergens: [Allergen]?
+//    @Children(for: \.$recipe) var ingredients: [RecipeIngredient]
     @OptionalParent(key: "user") var user: User?
+    
+    @Siblings(through: RecipeIngredient.self, from: \.$recipe, to: \.$ingredient) var ingredients: [Ingredient]
+    
     
     init() {}
     
-    init(id: UUID? = nil, name: String, description: String, guide: String, isPublic: Bool, time: Int, user: User? = nil) {
+    init(id: UUID? = nil, name: String, description: String, guide: String, isPublic: Bool, time: Int, allergens: [Allergen]? = nil, user: User.IDValue? = nil) {
         self.id = id
         self.name = name
         self.description = description
         self.guide = guide
         self.isPublic = isPublic
         self.time = time
-        self.user = user
+        self.allergens = allergens
+        self.$user.id = user
     }
+    
+    
 }
