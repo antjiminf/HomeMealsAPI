@@ -14,6 +14,8 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(RecipeMigration())
     app.migrations.add(IngredientMigration())
     app.migrations.add(IngredientPivotsMigration())
+    
+    app.migrations.add(DataMigration())
 
     // register routes
     try routes(app)

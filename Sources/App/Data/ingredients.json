@@ -1,0 +1,260 @@
+[
+    {
+        "name": "Wheat Flour",
+        "category": "bakery-pastry"
+    },
+    {
+        "name": "Sugar",
+        "category": "bakery-pastry"
+    },
+    {
+        "name": "Milk",
+        "category": "dairy"
+    },
+    {
+        "name": "Egg",
+        "category": "dairy"
+    },
+    {
+        "name": "Salmon",
+        "category": "fish"
+    },
+    {
+        "name": "Apple",
+        "category": "fruit"
+    },
+    {
+        "name": "Banana",
+        "category": "fruit"
+    },
+    {
+        "name": "Tomato",
+        "category": "vegetable"
+    },
+    {
+        "name": "Carrot",
+        "category": "vegetable"
+    },
+    {
+        "name": "Chicken Breast",
+        "category": "meat"
+    },
+    {
+        "name": "Olive Oil",
+        "category": "oil-fat"
+    },
+    {
+        "name": "Almond",
+        "category": "nuts-seeds"
+    },
+    {
+        "name": "Peanut Butter",
+        "category": "nuts-seeds"
+    },
+    {
+        "name": "Lettuce",
+        "category": "vegetable"
+    },
+    {
+        "name": "Butter",
+        "category": "dairy"
+    },
+    {
+        "name": "Cinnamon",
+        "category": "herbs-spices"
+    },
+    {
+        "name": "Rice",
+        "category": "cereals-grains"
+    },
+    {
+        "name": "Pasta",
+        "category": "cereals-grains"
+    },
+    {
+        "name": "Shrimp",
+        "category": "seafood"
+    },
+    {
+        "name": "Garlic",
+        "category": "herbs-spices"
+    },
+    {
+        "name": "Chocolate",
+        "category": "sweet-dessert"
+    },
+    {
+        "name": "Honey",
+        "category": "sweet-dessert"
+    },
+    {
+        "name": "Beef Steak",
+        "category": "meat"
+    },
+    {
+        "name": "Broccoli",
+        "category": "vegetable"
+    },
+    {
+        "name": "Spinach",
+        "category": "vegetable"
+    },
+    {
+        "name": "Yogurt",
+        "category": "dairy"
+    },
+    {
+        "name": "Coconut Milk",
+        "category": "beverage"
+    },
+    {
+        "name": "Orange Juice",
+        "category": "beverage"
+    },
+    {
+        "name": "Oats",
+        "category": "cereals-grains"
+    },
+    {
+        "name": "Walnuts",
+        "category": "nuts-seeds"
+    },
+    {
+        "name": "Sunflower Oil",
+        "category": "oil-fat"
+    },
+    {
+        "name": "Basil",
+        "category": "herbs-spices"
+    },
+    {
+        "name": "Strawberries",
+        "category": "fruit"
+    },
+    {
+        "name": "Zucchini",
+        "category": "vegetable"
+    },
+    {
+        "name": "Ground Beef",
+        "category": "meat"
+    },
+    {
+        "name": "Mayonnaise",
+        "category": "oil-fat"
+    },
+    {
+        "name": "Almond Milk",
+        "category": "beverage"
+    },
+    {
+        "name": "Chia Seeds",
+        "category": "nuts-seeds"
+    },
+    {
+        "name": "Black Pepper",
+        "category": "herbs-spices"
+    },
+    {
+        "name": "Pineapple",
+        "category": "fruit"
+    },
+    {
+        "name": "Ginger",
+        "category": "herbs-spices"
+    },
+    {
+        "name": "Corn",
+        "category": "vegetable"
+    },
+    {
+        "name": "Pork Loin",
+        "category": "meat"
+    },
+    {
+        "name": "Soy Sauce",
+        "category": "herbs-spices"
+    },
+    {
+        "name": "Cocoa Powder",
+        "category": "sweet-dessert"
+    },
+    {
+        "name": "Red Wine",
+        "category": "beverage"
+    },
+    {
+        "name": "Quinoa",
+        "category": "cereals-grains"
+    },
+    {
+        "name": "Cashews",
+        "category": "nuts-seeds"
+    },
+    {
+        "name": "Butter Lettuce",
+        "category": "vegetable"
+    },
+    { "name": "Croissant", "category": "bakery-pastry" },
+    { "name": "Sourdough Bread", "category": "bakery-pastry" },
+    { "name": "Danish Pastry", "category": "bakery-pastry" },
+    { "name": "Baguette", "category": "bakery-pastry" },
+    { "name": "Pita Bread", "category": "bakery-pastry" },
+    
+    { "name": "Orange Juice", "category": "beverage" },
+    { "name": "Espresso", "category": "beverage" },
+    { "name": "Green Tea", "category": "beverage" },
+    { "name": "Smoothie", "category": "beverage" },
+    { "name": "Ginger Ale", "category": "beverage" },
+    
+    { "name": "Brown Rice", "category": "cereals-grains" },
+    { "name": "Barley", "category": "cereals-grains" },
+    { "name": "Quinoa", "category": "cereals-grains" },
+    { "name": "Oats", "category": "cereals-grains" },
+    { "name": "Couscous", "category": "cereals-grains" },
+    
+    { "name": "Cheddar Cheese", "category": "dairy" },
+    { "name": "Greek Yogurt", "category": "dairy" },
+    { "name": "Butter", "category": "dairy" },
+    { "name": "Cream Cheese", "category": "dairy" },
+    { "name": "Gouda Cheese", "category": "dairy" },
+    
+    { "name": "Salmon", "category": "fish" },
+    { "name": "Mackerel", "category": "fish" },
+    { "name": "Herring", "category": "fish" },
+    { "name": "Cod", "category": "fish" },
+    { "name": "Trout", "category": "fish" },
+    
+    { "name": "Pineapple", "category": "fruit" },
+    { "name": "Grapes", "category": "fruit" },
+    { "name": "Cherries", "category": "fruit" },
+    { "name": "Mango", "category": "fruit" },
+    { "name": "Papaya", "category": "fruit" },
+    
+    { "name": "Basil", "category": "herbs-spices" },
+    { "name": "Cilantro", "category": "herbs-spices" },
+    { "name": "Turmeric", "category": "herbs-spices" },
+    { "name": "Oregano", "category": "herbs-spices" },
+    { "name": "Rosemary", "category": "herbs-spices" },
+    
+    { "name": "Kidney Beans", "category": "legumes" },
+    { "name": "Black-eyed Peas", "category": "legumes" },
+    { "name": "Lentils", "category": "legumes" },
+    { "name": "Chickpeas", "category": "legumes" },
+    { "name": "Soybeans", "category": "legumes" },
+    
+    { "name": "Lamb", "category": "meat" },
+    { "name": "Pork", "category": "meat" },
+    { "name": "Venison", "category": "meat" },
+    { "name": "Duck", "category": "meat" },
+    { "name": "Goat", "category": "meat" },
+    
+    { "name": "Sunflower Seeds", "category": "nuts-seeds" },
+    { "name": "Pine Nuts", "category": "nuts-seeds" },
+    { "name": "Pistachios", "category": "nuts-seeds" },
+    { "name": "Almonds", "category": "nuts-seeds" },
+    { "name": "Walnuts", "category": "nuts-seeds" }
+    
+    
+]
+ 
