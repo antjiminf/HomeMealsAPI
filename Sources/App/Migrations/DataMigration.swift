@@ -4,34 +4,32 @@ import Fluent
 struct DataMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
         let users = try loadUsers()
-        for u in users {
-            try await u.create(on: database)
-        }
+        try await users.create(on: database)
         
         let ingredients = try loadIngredients()
-        for i in ingredients {
-            try await i.create(on: database)
-        }
+        try await ingredients.create(on: database)
         
         let recipes = try loadRecipes()
-        
-        for r in recipes {
-            try await r.create(on: database)
-        }
+        try await recipes.create(on: database)
         
         let recipeIngredients = try loadRecipeIngredients()
-        for i in recipeIngredients {
-            try await i.create(on: database)
-        }
+        try await recipeIngredients.create(on: database)
         
         let pantries = try loadPantries()
-        for p in pantries {
-            try await p.create(on: database)
-        }
+        try await pantries.create(on: database)
     }
     
     func revert(on database: any Database) async throws {
-        
+        try await database.query(Pantry.self)
+            .delete()
+        try await database.query(RecipeIngredient.self)
+            .delete()
+        try await database.query(Recipe.self)
+            .delete()
+        try await database.query(Ingredient.self)
+            .delete()
+        try await database.query(User.self)
+            .delete()
     }
     
     func loadIngredients() throws -> [Ingredient] {

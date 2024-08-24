@@ -15,6 +15,7 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(IngredientMigration())
     app.migrations.add(IngredientPivotsMigration())
     
+    //Data injection
     app.migrations.add(DataMigration())
 
     // register routes
