@@ -24,11 +24,11 @@ struct RecipeMigration: AsyncMigration {
             .id()
             .field("name", .string, .required)
             .field("description", .string)
-            .field("guide", .string, .required)
+            .field("guide", .array(of: .string), .required)
             .field("is_public", .bool, .required)
             .field("time", .int)
             .field("allergens", .array(of: .string))
-            .field("user", .uuid, .references(User.schema, .id))
+            .field("user", .uuid, .references(User.schema, .id), .required)
             .create()
     }
     

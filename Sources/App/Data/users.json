@@ -1,0 +1,24 @@
+
+[
+    {
+        "id": "123e4567-e89b-12d3-a456-426614174000",
+        "name": "Alice Smith",
+        "username": "alice",
+        "email": "alice@example.com",
+        "avatar": "https://example.com/avatar/alice.png"
+    },
+    {
+        "id": "223e4567-e89b-12d3-a456-426614174001",
+        "name": "Bob Johnson",
+        "username": "bob",
+        "email": "bob@example.com",
+        "avatar": "https://example.com/avatar/bob.png"
+    },
+    {
+        "id": "323e4567-e89b-12d3-a456-426614174002",
+        "name": "Charlie Brown",
+        "username": "charlie",
+        "email": "charlie@example.com",
+        "avatar": "https://example.com/avatar/charlie.png"
+    }
+]

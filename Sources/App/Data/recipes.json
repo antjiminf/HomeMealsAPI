@@ -1,0 +1,70 @@
+[
+    {
+        "id": "e23e4567-e89b-12d3-a456-42661417400d",
+        "name": "Pancakes",
+        "description": "Fluffy pancakes perfect for breakfast.",
+        "guide": [
+            "Mix flour, sugar, milk, and eggs in a bowl.",
+            "Heat a skillet over medium heat and add butter.",
+            "Pour batter into the skillet and cook until bubbles form on the surface.",
+            "Flip the pancake and cook until golden brown on both sides."
+        ],
+        "isPublic": true,
+        "time": 20,
+        "allergens": ["egg", "dairy", "gluten"],
+        "user": {
+            "id": "123e4567-e89b-12d3-a456-426614174000"
+        }
+    },
+    {
+        "id": "f23e4567-e89b-12d3-a456-42661417400e",
+        "name": "Scrambled Eggs",
+        "description": "Simple scrambled eggs with butter.",
+        "guide": [
+            "Crack the eggs into a bowl and whisk them.",
+            "Melt butter in a skillet over medium heat.",
+            "Pour the eggs into the skillet and stir slowly.",
+            "Cook until the eggs are softly set, then serve."
+        ],
+        "isPublic": false,
+        "time": 10,
+        "allergens": ["egg", "dairy"],
+        "user": {
+            "id": "223e4567-e89b-12d3-a456-426614174001"
+        }
+    },
+    {
+        "id": "623e4567-e89b-12d3-a456-42661417400f",
+        "name": "Grilled Chicken Salad",
+        "description": "A healthy grilled chicken salad with fresh vegetables.",
+        "guide": [
+            "Season the chicken breast with salt and pepper.",
+            "Grill the chicken over medium heat until fully cooked.",
+            "Chop the tomato and basil.",
+            "Slice the grilled chicken and mix with tomato, basil, and olive oil."
+        ],
+        "isPublic": true,
+        "time": 30,
+        "allergens": [],
+        "user": {
+            "id": "323e4567-e89b-12d3-a456-426614174002"
+        }
+    },
+    {
+        "id": "a23e4567-e89b-12d3-a456-426614174010",
+        "name": "Tomato Basil Soup",
+        "description": "A rich and creamy tomato basil soup.",
+        "guide": [
+            "Heat olive oil in a pot over medium heat.",
+            "Add chopped tomatoes and cook until soft.",
+            "Add salt and fresh basil, then blend until smooth.",
+            "Simmer for 10 minutes before serving."
+        ],
+        "isPublic": true,
+        "time": 25,
+        "allergens": [],
+        "user": {
+            "id": "323e4567-e89b-12d3-a456-426614174002"
+        }
+    }
+]

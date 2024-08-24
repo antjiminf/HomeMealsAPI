@@ -1,0 +1,123 @@
+[
+    {
+        "recipe": {
+            "id": "e23e4567-e89b-12d3-a456-42661417400d"
+        },
+        "ingredient": {
+            "id": "423e4567-e89b-12d3-a456-426614174003"
+        },
+        "quantity": 200,
+        "unit": "volume"
+    },
+    {
+        "recipe": {
+            "id": "e23e4567-e89b-12d3-a456-42661417400d"
+        },
+        "ingredient": {
+            "id": "523e4567-e89b-12d3-a456-426614174004"
+        },
+        "quantity": 150,
+        "unit": "weight"
+    },
+    {
+        "recipe": {
+            "id": "e23e4567-e89b-12d3-a456-42661417400d"
+        },
+        "ingredient": {
+            "id": "623e4567-e89b-12d3-a456-426614174005"
+        },
+        "quantity": 50,
+        "unit": "weight"
+    },
+    {
+        "recipe": {
+            "id": "e23e4567-e89b-12d3-a456-42661417400d"
+        },
+        "ingredient": {
+            "id": "723e4567-e89b-12d3-a456-426614174006"
+        },
+        "quantity": 2,
+        "unit": "units"
+    },
+    {
+        "recipe": {
+            "id": "f23e4567-e89b-12d3-a456-42661417400e"
+        },
+        "ingredient": {
+            "id": "723e4567-e89b-12d3-a456-426614174006"
+        },
+        "quantity": 3,
+        "unit": "units"
+    },
+    {
+        "recipe": {
+            "id": "f23e4567-e89b-12d3-a456-42661417400e"
+        },
+        "ingredient": {
+            "id": "823e4567-e89b-12d3-a456-426614174007"
+        },
+        "quantity": 30,
+        "unit": "weight"
+    },
+    {
+        "recipe": {
+            "id": "623e4567-e89b-12d3-a456-42661417400f"
+        },
+        "ingredient": {
+            "id": "923e4567-e89b-12d3-a456-426614174008"
+        },
+        "quantity": 1,
+        "unit": "units"
+    },
+    {
+        "recipe": {
+            "id": "623e4567-e89b-12d3-a456-42661417400f"
+        },
+        "ingredient": {
+            "id": "c23e4567-e89b-12d3-a456-42661417400b"
+        },
+        "quantity": 2,
+        "unit": "units"
+    },
+    {
+        "recipe": {
+            "id": "623e4567-e89b-12d3-a456-42661417400f"
+        },
+        "ingredient": {
+            "id": "d23e4567-e89b-12d3-a456-42661417400c"
+        },
+        "quantity": 5,
+        "unit": "units"
+    },
+    {
+        "recipe": {
+            "id": "a23e4567-e89b-12d3-a456-426614174010"
+        },
+        "ingredient": {
+            "id": "c23e4567-e89b-12d3-a456-42661417400b"
+        },
+        "quantity": 4,
+        "unit": "units"
+    },
+    {
+        "recipe": {
+            "id": "a23e4567-e89b-12d3-a456-426614174010"
+        },
+        "ingredient": {
+            "id": "a23e4567-e89b-12d3-a456-426614174009"
+        },
+        "quantity": 2,
+        "unit": "volume"
+    },
+    {
+        "recipe": {
+            "id": "a23e4567-e89b-12d3-a456-426614174010"
+        },
+        "ingredient": {
+            "id": "d23e4567-e89b-12d3-a456-42661417400c"
+        },
+        "quantity": 3,
+        "unit": "units"
+    }
+]
+

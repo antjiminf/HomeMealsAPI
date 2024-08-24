@@ -21,11 +21,11 @@ struct IngredientPivotsMigration: AsyncMigration {
         
         try await database.schema(RecipeIngredient.schema)
             .id()
-            .field("user", .uuid, .references(User.schema, .id), .required)
+            .field("recipe", .uuid, .references(Recipe.schema, .id), .required)
             .field("ingredient", .uuid, .references(Ingredient.schema, .id), .required)
             .field("quantity", .double, .required)
             .field("unit", units, .required)
-            .unique(on: "user", "ingredient")
+            .unique(on: "recipe", "ingredient")
             .create()
     }
     

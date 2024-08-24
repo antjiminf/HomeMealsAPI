@@ -9,19 +9,19 @@ final class Recipe: Model {
     @ID(key: .id) var id: UUID?
     @Field(key: "name") var name: String
     @Field(key: "description") var description: String
-    @Field(key: "guide") var guide: String
+    @Field(key: "guide") var guide: [String]
     @Field(key: "is_public") var isPublic: Bool
     @Field(key: "time") var time: Int
     @Field(key: "allergens") var allergens: [Allergen]?
 //    @Children(for: \.$recipe) var ingredients: [RecipeIngredient]
-    @OptionalParent(key: "user") var user: User?
+    @Parent(key: "user") var user: User
     
     @Siblings(through: RecipeIngredient.self, from: \.$recipe, to: \.$ingredient) var ingredients: [Ingredient]
     
     
     init() {}
     
-    init(id: UUID? = nil, name: String, description: String, guide: String, isPublic: Bool, time: Int, allergens: [Allergen]? = nil, user: User.IDValue? = nil) {
+    init(id: UUID? = nil, name: String, description: String, guide: [String], isPublic: Bool, time: Int, allergens: [Allergen]? = nil, user: User.IDValue) {
         self.id = id
         self.name = name
         self.description = description
