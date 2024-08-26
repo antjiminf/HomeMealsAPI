@@ -24,6 +24,7 @@ struct IngredientMigration: AsyncMigration {
             .id()
             .field("name", .string, .required)
             .field("category", foodCategories, .required)
+            .unique(on: "name")
             .create()
     }
     

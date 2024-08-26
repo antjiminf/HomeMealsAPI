@@ -4,7 +4,7 @@ import Fluent
 
 extension Ingredient: @unchecked Sendable {}
 
-final class Ingredient: Model {
+final class Ingredient: Model, Content {
     
     static let schema = "ingredient"
     
