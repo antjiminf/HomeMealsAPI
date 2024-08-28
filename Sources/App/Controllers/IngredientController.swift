@@ -6,7 +6,7 @@ struct IngredientController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         let ingredients = routes.grouped("api", "ingredient")
         
-        ingredients.get( use: getAllIngredients)
+        ingredients.get(use: getAllIngredients)
         ingredients.post(use: createIngredient)
         ingredients.group(":id") { ingredient in
             ingredient.get(use: getIngredient)
@@ -25,6 +25,7 @@ struct IngredientController: RouteCollection {
     }
     
     @Sendable func createIngredient(req: Request) async throws -> HTTPStatus {
+        // Autentication
         let new = try req.content.decode(Ingredient.self)
         
         let exists = try await Ingredient
@@ -32,7 +33,7 @@ struct IngredientController: RouteCollection {
             .filter(\.$name, .custom("ILIKE"), new.name)
             .first()
         
-        if let exists {
+        if exists != nil {
             throw Abort(.conflict, reason: "\(new.name) already exists")
         }
         
@@ -79,6 +80,7 @@ struct IngredientController: RouteCollection {
     }
     
     @Sendable func deleteIngredient(req: Request) async throws -> HTTPStatus {
+        //Authentication
         guard let ingredient = try await Ingredient.find(req.parameters.get("id"), on: req.db) else {
             throw Abort(.notFound, reason: "Ingredient not found.")
         }
@@ -90,10 +92,11 @@ struct IngredientController: RouteCollection {
     }
     
     @Sendable func updateIngredient(req: Request) async throws -> HTTPStatus {
+//        Authentication
+        let updated = try req.content.decode(Ingredient.self)
         guard let ingredient = try await Ingredient.find(req.parameters.get("id"), on: req.db) else {
             throw Abort(.notFound, reason: "Ingredient not found.")
         }
-        let updated = try req.content.decode(Ingredient.self)
         
         let exists = try await Ingredient
             .query(on: req.db)
@@ -101,7 +104,7 @@ struct IngredientController: RouteCollection {
             .filter(\.$id != ingredient.id!) //Se que existe porque está en BBDD
             .first()
         
-        if let exists {
+        if exists != nil {
             throw Abort(.conflict, reason: "\(updated.name) already exists")
         }
         
