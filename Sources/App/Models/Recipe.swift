@@ -3,7 +3,7 @@ import Fluent
 
 extension Recipe: @unchecked Sendable {}
 
-final class Recipe: Model {
+final class Recipe: Model, Content {
     static let schema = "recipe"
     
     @ID(key: .id) var id: UUID?
@@ -12,7 +12,7 @@ final class Recipe: Model {
     @Field(key: "guide") var guide: [String]
     @Field(key: "is_public") var isPublic: Bool
     @Field(key: "time") var time: Int
-    @Field(key: "allergens") var allergens: [Allergen]?
+    @Field(key: "allergens") var allergens: [Allergen]
 //    @Children(for: \.$recipe) var ingredients: [RecipeIngredient]
     @Parent(key: "user") var user: User
     
@@ -21,7 +21,7 @@ final class Recipe: Model {
     
     init() {}
     
-    init(id: UUID? = nil, name: String, description: String, guide: [String], isPublic: Bool, time: Int, allergens: [Allergen]? = nil, user: User.IDValue) {
+    init(id: UUID? = nil, name: String, description: String, guide: [String], isPublic: Bool, time: Int, allergens: [Allergen], user: User.IDValue) {
         self.id = id
         self.name = name
         self.description = description
