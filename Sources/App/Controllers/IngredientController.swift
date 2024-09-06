@@ -8,6 +8,7 @@ struct IngredientController: RouteCollection {
         
         ingredients.get(use: getAllIngredients)
         ingredients.post(use: createIngredient)
+        ingredients.get("search", use: searchIngredients)
         ingredients.group(":id") { ingredient in
             ingredient.get(use: getIngredient)
             ingredient.get("recipes", use: getRecipesWithIngredient)
@@ -18,15 +19,35 @@ struct IngredientController: RouteCollection {
         
     }
     
-    @Sendable func getAllIngredients(req: Request) async throws -> [Ingredient] {
+    @Sendable func getAllIngredients(req: Request) async throws -> Page<Ingredient> {
         try await Ingredient
             .query(on: req.db)
-            .all()
+            .paginate(for: req)
+    }
+    
+    @Sendable func searchIngredients(req: Request) async throws -> Page<Ingredient> {
+        var ingredients = Ingredient.query(on: req.db)
+        
+        if let name = req.query[String.self, at: "name"] {
+            ingredients = ingredients.filter(\.$name, .custom("ILIKE"), "%\(name)%")
+        }
+        if let categoriesString = req.query[String.self, at: "categories"] {
+            let categories = categoriesString.split(separator: ",").compactMap {
+                FoodCategory(rawValue: String($0).trimmingCharacters(in: .whitespaces))
+            }
+            
+            if !categories.isEmpty {
+                ingredients = ingredients.filter(\.$category ~~ categories)
+            }
+        }
+        
+        return try await ingredients.paginate(for: req)
     }
     
     @Sendable func createIngredient(req: Request) async throws -> HTTPStatus {
-        // Autentication
-        let new = try req.content.decode(Ingredient.self)
+        // Autentication USER
+        try CreateIngredient.validate(content: req)
+        let new = try req.content.decode(CreateIngredient.self)
         
         let exists = try await Ingredient
             .query(on: req.db)
@@ -37,7 +58,7 @@ struct IngredientController: RouteCollection {
             throw Abort(.conflict, reason: "\(new.name) already exists")
         }
         
-        try await new.create(on: req.db)
+        try await new.toIngredient().create(on: req.db)
         return .created
     }
     
@@ -59,7 +80,7 @@ struct IngredientController: RouteCollection {
         }
     }
     
-    @Sendable func getRecipesWithIngredient(req: Request) async throws -> Ingredient {
+    @Sendable func getRecipesWithIngredient(req: Request) async throws -> Ingredient.RecipesWithIngredient {
         guard let id = req.parameters.get("id"),
               let uuid = UUID(uuidString: id) else {
             throw Abort(.badRequest, reason: "Invalid uuid")
@@ -72,7 +93,10 @@ struct IngredientController: RouteCollection {
             .first()
         
         if let ingredient {
-            return ingredient
+            for r in ingredient.recipes {
+                try await r.$user.load(on: req.db)
+            }
+            return try ingredient.recipesWithIngredient
         } else {
             throw Abort(.notFound, reason: "Ingredient with id \(id) not found.")
         }
@@ -80,7 +104,7 @@ struct IngredientController: RouteCollection {
     }
     
     @Sendable func deleteIngredient(req: Request) async throws -> HTTPStatus {
-        //Authentication
+        //Authentication ADMIN
         guard let ingredient = try await Ingredient.find(req.parameters.get("id"), on: req.db) else {
             throw Abort(.notFound, reason: "Ingredient not found.")
         }
@@ -92,8 +116,9 @@ struct IngredientController: RouteCollection {
     }
     
     @Sendable func updateIngredient(req: Request) async throws -> HTTPStatus {
-//        Authentication
-        let updated = try req.content.decode(Ingredient.self)
+//        Authentication ADMIN
+        try CreateIngredient.validate(content: req)
+        let updated = try req.content.decode(CreateIngredient.self)
         guard let ingredient = try await Ingredient.find(req.parameters.get("id"), on: req.db) else {
             throw Abort(.notFound, reason: "Ingredient not found.")
         }
@@ -115,7 +140,7 @@ struct IngredientController: RouteCollection {
         return .noContent //Si envio cuerpo -> .ok
     }
     
-    @Sendable func getIngredientsByCategory(req: Request) async throws -> [Ingredient] {
+    @Sendable func getIngredientsByCategory(req: Request) async throws -> Page<Ingredient> {
         guard let categoryString = req.parameters.get("category"),
               let category = FoodCategory(rawValue: categoryString) else {
             throw Abort(.badRequest, reason: "Invalid ingredient category")
@@ -124,6 +149,6 @@ struct IngredientController: RouteCollection {
         return try await Ingredient
             .query(on: req.db)
             .filter(\.$category == category)
-            .all()
+            .paginate(for: req)
     }
 }
