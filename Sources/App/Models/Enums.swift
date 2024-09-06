@@ -1,4 +1,4 @@
-enum FoodCategory: String, Codable {
+enum FoodCategory: String, Codable, CaseIterable {
     case bakeryPastry = "bakery-pastry"
     case beverage
     case cerealsGrains = "cereals-grains"
@@ -15,13 +15,13 @@ enum FoodCategory: String, Codable {
     case vegetable
 }
 
-enum Unit: String, Codable {
+enum Unit: String, Codable, CaseIterable {
     case volume
     case units
     case weight
 }
 
-enum Allergen: String, Codable {
+enum Allergen: String, Codable, CaseIterable{
     case celery
     case crustaceans
     case dairy

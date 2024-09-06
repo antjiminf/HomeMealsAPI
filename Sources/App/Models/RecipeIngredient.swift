@@ -24,3 +24,20 @@ final class RecipeIngredient: Model {
     }
     
 }
+
+extension RecipeIngredient {
+    struct IngredientDetails: Content {
+        let name: String
+        let quantity: Double
+        let unit: Unit
+    }
+    
+    var ingredientDetails: IngredientDetails {
+        get {
+            IngredientDetails(
+                name: ingredient.name,
+                quantity: quantity,
+                unit: unit)
+        }
+    }
+}

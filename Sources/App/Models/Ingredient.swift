@@ -24,14 +24,21 @@ final class Ingredient: Model, Content {
     
 }
 
-//import Vapor
-//import Fluent
-//
-//
-//final class Ingredient: Model {
-//    
-//    static let schema = "ingredient"
-//    
-//    var id: UUID?
-//    
-//}
+extension Ingredient {
+    struct RecipesWithIngredient: Content {
+        let id: UUID
+        let name: String
+        let category: String
+        let recipes: [Recipe.RecipeListResponse]
+    }
+    
+    var recipesWithIngredient: RecipesWithIngredient {
+        get throws {
+            try RecipesWithIngredient(
+                id: requireID(), 
+                name: name,
+                category: category.rawValue,
+                recipes: try recipes.map{ try $0.recipeListResponse })
+        }
+    }
+}
