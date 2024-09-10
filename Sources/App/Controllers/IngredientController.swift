@@ -4,9 +4,9 @@ import Fluent
 
 struct IngredientController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
-        let ingredients = routes.grouped("api", "ingredient")
+        let ingredients = routes.grouped("api", "ingredients")
         
-        ingredients.get(use: getAllIngredients)
+        ingredients.get(use: getIngredients)
         ingredients.post(use: createIngredient)
         ingredients.get("search", use: searchIngredients)
         ingredients.group(":id") { ingredient in
@@ -19,13 +19,14 @@ struct IngredientController: RouteCollection {
         
     }
     
-    @Sendable func getAllIngredients(req: Request) async throws -> Page<Ingredient> {
-        try await Ingredient
+    @Sendable func getIngredients(req: Request) async throws -> PageDTO<Ingredient> {
+        let page = try await Ingredient
             .query(on: req.db)
             .paginate(for: req)
+        return PageDTO(pg: page)
     }
     
-    @Sendable func searchIngredients(req: Request) async throws -> Page<Ingredient> {
+    @Sendable func searchIngredients(req: Request) async throws -> PageDTO<Ingredient> {
         var ingredients = Ingredient.query(on: req.db)
         
         if let name = req.query[String.self, at: "name"] {
@@ -41,7 +42,8 @@ struct IngredientController: RouteCollection {
             }
         }
         
-        return try await ingredients.paginate(for: req)
+        let page = try await ingredients.paginate(for: req)
+        return PageDTO(pg: page)
     }
     
     @Sendable func createIngredient(req: Request) async throws -> HTTPStatus {
@@ -89,13 +91,12 @@ struct IngredientController: RouteCollection {
         let ingredient = try await Ingredient
             .query(on: req.db)
             .filter(\.$id == uuid)
-            .with(\.$recipes)
+            .with(\.$recipes) { recipe in
+                recipe.with(\.$user)
+            }
             .first()
         
         if let ingredient {
-            for r in ingredient.recipes {
-                try await r.$user.load(on: req.db)
-            }
             return try ingredient.recipesWithIngredient
         } else {
             throw Abort(.notFound, reason: "Ingredient with id \(id) not found.")
@@ -140,15 +141,16 @@ struct IngredientController: RouteCollection {
         return .noContent //Si envio cuerpo -> .ok
     }
     
-    @Sendable func getIngredientsByCategory(req: Request) async throws -> Page<Ingredient> {
+    @Sendable func getIngredientsByCategory(req: Request) async throws -> PageDTO<Ingredient> {
         guard let categoryString = req.parameters.get("category"),
               let category = FoodCategory(rawValue: categoryString) else {
             throw Abort(.badRequest, reason: "Invalid ingredient category")
         }
         
-        return try await Ingredient
+        let page = try await Ingredient
             .query(on: req.db)
             .filter(\.$category == category)
             .paginate(for: req)
+        return PageDTO(pg: page)
     }
 }

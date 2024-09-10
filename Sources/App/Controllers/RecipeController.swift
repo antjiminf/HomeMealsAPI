@@ -4,7 +4,7 @@ import Fluent
 struct RecipeController: RouteCollection {
     
     func boot(routes: any RoutesBuilder) throws {
-        let recipes = routes.grouped("api", "recipe")
+        let recipes = routes.grouped("api", "recipes")
         
         recipes.get(use: getAllPublicRecipes)
         recipes.post(use: createRecipe)
@@ -18,8 +18,8 @@ struct RecipeController: RouteCollection {
     }
     
     
-    @Sendable func getAllPublicRecipes(req: Request) async throws -> Page<Recipe.RecipeListResponse> {
-        try await Recipe
+    @Sendable func getAllPublicRecipes(req: Request) async throws -> PageDTO<Recipe.RecipeListResponse> {
+        let page = try await Recipe
             .query(on: req.db)
             .filter(\.$isPublic == true)
             .with(\.$user)
@@ -27,12 +27,14 @@ struct RecipeController: RouteCollection {
             .map {
                 try $0.recipeListResponse
             }
+        
+        return PageDTO(pg: page)
+        
     }
     
-    @Sendable func searchPublicRecipes(req: Request) async throws -> Page<Recipe.RecipeListResponse> {
+    @Sendable func searchPublicRecipes(req: Request) async throws -> PageDTO<Recipe.RecipeListResponse> {
         var recipes = Recipe.query(on: req.db)
             .filter(\.$isPublic == true)
-            .with(\.$user)
         
         if let name = req.query[String.self, at: "name"] {
             recipes = recipes.filter(\.$name, .custom("ILIKE"), "%\(name)%")
@@ -56,12 +58,13 @@ struct RecipeController: RouteCollection {
             }
         }
         
-        return try await recipes
+        let page = try await recipes
             .with(\.$user)
             .paginate(for: req)
             .map{ recipe in
                 return try recipe.recipeListResponse
             }
+        return PageDTO(pg: page)
     }
     
     @Sendable func getPublicRecipe(req: Request) async throws -> Recipe.RecipeResponse {
@@ -86,14 +89,13 @@ struct RecipeController: RouteCollection {
         let recipe = try await Recipe
             .query(on: req.db)
             .filter(\.$id == id)
-            .with(\.$ingredientsDetails)
+            .with(\.$ingredientsDetails) { detail in
+                detail.with(\.$ingredient)
+            }
             .with(\.$user)
             .first()
         
         if let recipe {
-            for i in recipe.ingredientsDetails {
-                try await i.$ingredient.load(on: req.db)
-            }
             return try recipe.recipeIngredientsResponse
         } else {
             throw Abort(.notFound, reason: "Recipe not found.")
@@ -105,13 +107,13 @@ struct RecipeController: RouteCollection {
         try CreateRecipe.validate(content: req)
         let new = try req.content.decode(CreateRecipe.self)
         
-        //Todo
+        //Todo id de usuario en cuestión
         try await new.toRecipe(user: UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!).create(on: req.db)
         return .created
     }
     
     @Sendable func updateRecipe(req: Request) async throws -> HTTPStatus {
-        //Authentication USER
+        //Authentication USER -> user == owner
         try CreateRecipe.validate(content: req)
         let updated = try req.content.decode(CreateRecipe.self)
         guard let recipe = try await Recipe.find(req.parameters.get("id"), on: req.db) else {
@@ -130,7 +132,7 @@ struct RecipeController: RouteCollection {
     }
     
     @Sendable func deleteRecipe(req: Request) async throws -> HTTPStatus {
-        //Authentication USER
+        //Authentication USER -> user == owner
         guard let recipe = try await Recipe.find(req.parameters.get("id"), on: req.db) else {
             throw Abort(.notFound, reason: "Recipe not found.")
         }

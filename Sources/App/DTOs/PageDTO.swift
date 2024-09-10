@@ -13,10 +13,4 @@ struct PageDTO<T: Content>: Content {
         self.total = pg.metadata.total
         self.items = pg.items
     }
-    
-//    func from(pg: Page<T>) -> PageDTO<T> {
-//        page = pg.metadata.page
-//        perPage = pg.metadata.per
-//        total = pg.metadata.total
-//    }
 }
