@@ -59,7 +59,7 @@ extension Recipe {
         let name: String
         let description: String
         let guide: [String]
-        let isPublic: Bool
+//        let isPublic: Bool
         let time: Int
         let allergens: [Allergen]
         let owner: UUID
@@ -99,7 +99,7 @@ extension Recipe {
                 name: name,
                 description: description,
                 guide: guide,
-                isPublic: isPublic,
+//                isPublic: isPublic,
                 time: time,
                 allergens: allergens,
                 owner: user.requireID(),
