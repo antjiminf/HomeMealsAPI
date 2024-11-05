@@ -15,6 +15,17 @@ struct RecipeController: RouteCollection {
             recipe.put(use: updateRecipe)
             recipe.delete(use: deleteRecipe)
         }
+        recipes.get("exists", ":name", use: existsRecipeName)
+        recipes.get("all", use: getAllRecipes)
+    }
+    
+    @Sendable func getAllRecipes(req: Request) async throws -> [Recipe.RecipeListResponse] {
+        return try await Recipe.query(on: req.db)
+            .with(\.$user)
+            .all()
+            .map {
+                try $0.recipeListResponse
+            }
     }
     
     
@@ -102,37 +113,88 @@ struct RecipeController: RouteCollection {
         }
     }
     
+    @Sendable func existsRecipeName(req: Request) async throws -> HTTPStatus {
+        guard let name = req.parameters.get("name") else {
+            throw Abort(.badRequest, reason: "Recipe name not found.")
+        }
+        
+        let exists = try await Recipe.query(on: req.db)
+            .filter(\.$name, .custom("ILIKE"), name)
+            .first()
+        
+        if exists == nil {
+            return .ok
+        } else {
+            return .notAcceptable
+        }
+    }
+    
     @Sendable func createRecipe(req: Request) async throws -> HTTPStatus {
-        // Authentication USER
+        // TODO: Authentication USER y dar el uuid correcto
         try CreateRecipe.validate(content: req)
         let new = try req.content.decode(CreateRecipe.self)
         
-        //Todo id de usuario en cuestión
-        try await new.toRecipe(user: UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!).create(on: req.db)
-        return .created
+        return try await req.db.transaction { database in
+            
+             let recipe = new.toRecipe(user: UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!)
+            try await recipe.create(on: database)
+            
+            for i in new.ingredients {
+                let newRecipeIngredient = RecipeIngredient(
+                    recipe: try recipe.requireID(),
+                    ingredient: i.ingredient,
+                    quantity: i.quantity,
+                    unit: i.unit
+                )
+                try await newRecipeIngredient.create(on: database)
+            }
+            return .created
+        }
     }
     
     @Sendable func updateRecipe(req: Request) async throws -> HTTPStatus {
-        //Authentication USER -> user == owner
+        // TODO: Authentication USER -> user == owner
         try CreateRecipe.validate(content: req)
-        let updated = try req.content.decode(CreateRecipe.self)
-        guard let recipe = try await Recipe.find(req.parameters.get("id"), on: req.db) else {
-            throw Abort(.notFound, reason: "Recipe not found.")
+        let updatedRecipe = try req.content.decode(CreateRecipe.self)
+        
+        guard let id = req.parameters.get("id", as: UUID.self) else {
+            throw Abort(.notFound, reason: "Parameter recipe id not found.")
         }
         
-        recipe.name = updated.name
-        recipe.description = updated.description
-        recipe.guide = updated.guide
-        recipe.time = updated.time
-        recipe.isPublic = updated.isPublic
-        recipe.allergens = updated.allergens
-        
-        try await recipe.update(on: req.db)
-        return .noContent
+        return try await req.db.transaction { database in
+            
+            guard let recipe = try await Recipe.find(id, on: database) else {
+                throw Abort(.notFound, reason: "Recipe not found")
+            }
+            
+            recipe.name = updatedRecipe.name
+            recipe.description = updatedRecipe.description
+            recipe.guide = updatedRecipe.guide
+            recipe.time = updatedRecipe.time
+            recipe.isPublic = updatedRecipe.isPublic
+            recipe.allergens = updatedRecipe.allergens
+            
+            try await recipe.update(on: database)
+            
+            try await RecipeIngredient.query(on: database)
+                .filter(\.$recipe.$id == id)
+                .delete()
+            
+            for ingredient in updatedRecipe.ingredients {
+                let newIngredient = RecipeIngredient(
+                    recipe: try recipe.requireID(),
+                    ingredient: ingredient.ingredient,
+                    quantity: ingredient.quantity,
+                    unit: ingredient.unit
+                )
+                try await newIngredient.create(on: database)
+            }
+            return .noContent
+        }
     }
     
     @Sendable func deleteRecipe(req: Request) async throws -> HTTPStatus {
-        //Authentication USER -> user == owner
+        // TODO: Authentication USER -> user == owner
         guard let recipe = try await Recipe.find(req.parameters.get("id"), on: req.db) else {
             throw Abort(.notFound, reason: "Recipe not found.")
         }

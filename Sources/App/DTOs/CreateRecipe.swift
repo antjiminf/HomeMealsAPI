@@ -7,6 +7,7 @@ struct CreateRecipe: Content {
     var isPublic: Bool
     var time: Int
     var allergens: [Allergen]
+    var ingredients: [CreateIngredientInRecipe]
     
     func toRecipe(user: UUID) -> Recipe {
         Recipe(name: self.name,
@@ -17,6 +18,12 @@ struct CreateRecipe: Content {
                allergens: self.allergens,
                user: user)
     }
+}
+
+struct CreateIngredientInRecipe: Content {
+    var ingredient: UUID
+    var unit: Unit
+    var quantity: Double
 }
 
 extension ValidatorResults {
@@ -35,7 +42,7 @@ extension ValidatorResults.Guide: ValidatorResult {
     }
 
     public var successDescription: String? {
-        "is a valid"
+        "is valid"
     }
 
     public var failureDescription: String? {
@@ -88,11 +95,11 @@ extension Validator where T == [String] {
 
 extension CreateRecipe: Validatable {
     static func validations(_ validations: inout Validations) {
-        validations.add("name", as: String.self, is: !.empty && .alphanumeric)
-        validations.add("description", as: String.self, is: .ascii)
-        validations.add("guide", as: [String].self, is: .guide)
-        validations.add("isPublic", as: Bool.self, is: .valid)
-        validations.add("time", as: Int.self, is: .range(1...))
+        validations.add("name", as: String.self, is: !.empty, required: true)
+        validations.add("guide", as: [String].self, is: .guide, required: true)
+        validations.add("isPublic", as: Bool.self, is: .valid, required: true)
+        validations.add("time", as: Int.self, is: .range(1...), required: true)
         validations.add("allergens", as: [String].self, is: .allergens)
+        validations.add("ingredients", as: [CreateIngredientInRecipe].self, is: .count(3...), required: true)
     }
 }
