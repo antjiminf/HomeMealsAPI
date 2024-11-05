@@ -20,9 +20,16 @@ struct IngredientMigration: AsyncMigration {
             .case("vegetable")
             .create()
         
+        let units = try await database.enum("unit")
+            .case("volume")
+            .case("units")
+            .case("weight")
+            .create()
+        
         try await database.schema(Ingredient.schema)
             .id()
             .field("name", .string, .required)
+            .field("unit", units, .required)
             .field("category", foodCategories, .required)
             .unique(on: "name")
             .create()

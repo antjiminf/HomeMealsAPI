@@ -15,8 +15,15 @@ struct IngredientController: RouteCollection {
             ingredient.delete(use: deleteIngredient)
             ingredient.put(use: updateIngredient)
         }
+        ingredients.get("all", use: getAllIngredients)
+        ingredients.get("exists", ":name", use: existsIngredientName)
         ingredients.get("category", ":category", use: getIngredientsByCategory)
         
+    }
+    
+    @Sendable func getAllIngredients(req: Request) async throws -> [Ingredient] {
+        return try await Ingredient.query(on: req.db)
+            .all()
     }
     
     @Sendable func getIngredients(req: Request) async throws -> PageDTO<Ingredient> {
@@ -44,6 +51,22 @@ struct IngredientController: RouteCollection {
         
         let page = try await ingredients.paginate(for: req)
         return PageDTO(pg: page)
+    }
+    
+    @Sendable func existsIngredientName(req: Request) async throws -> HTTPStatus {
+        guard let name = req.parameters.get("name") else {
+            throw Abort(.badRequest, reason: "Ingredient name not found.")
+        }
+        
+        let exists = try await Ingredient.query(on: req.db)
+            .filter(\.$name, .custom("ILIKE"), name)
+            .first()
+        
+        if exists == nil {
+            return .ok
+        } else {
+            return .notAcceptable
+        }
     }
     
     @Sendable func createIngredient(req: Request) async throws -> HTTPStatus {
@@ -134,6 +157,7 @@ struct IngredientController: RouteCollection {
             throw Abort(.conflict, reason: "\(updated.name) already exists")
         }
         
+        ingredient.unit = updated.unit
         ingredient.category = updated.category
         ingredient.name = updated.name
         
