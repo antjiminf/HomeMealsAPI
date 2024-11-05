@@ -10,6 +10,17 @@ public func configure(_ app: Application) async throws {
 
     app.databases.use(try .postgres(url: "postgres://admin:admin@localhost:55000/homemeals_db"), as: .psql)
     
+    //De-Encoders
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .iso8601
+    
+    let encoder = JSONEncoder()
+    encoder.dateEncodingStrategy = .iso8601
+    
+    ContentConfiguration.global.use(decoder: decoder, for: .json)
+    ContentConfiguration.global.use(encoder: encoder, for: .json)
+    
+    //Entities migration
     app.migrations.add(UserMigration())
     app.migrations.add(RecipeMigration())
     app.migrations.add(IngredientMigration())
@@ -18,6 +29,6 @@ public func configure(_ app: Application) async throws {
     //Data injection
     app.migrations.add(DataMigration())
 
-    // register routes
+    //Routes registration
     try routes(app)
 }
