@@ -4,11 +4,7 @@ import Fluent
 struct IngredientPivotsMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
         
-        let units = try await database.enum("unit")
-            .case("volume")
-            .case("units")
-            .case("weight")
-            .create()
+        let units = try await database.enum("unit").read()
         
         try await database.schema(Pantry.schema)
             .id()

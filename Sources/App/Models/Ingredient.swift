@@ -10,15 +10,17 @@ final class Ingredient: Model, Content {
     
     @ID(key: .id) var id: UUID?
     @Field(key: "name") var name: String
+    @Enum(key: "unit") var unit: Unit
     @Enum(key: "category") var category: FoodCategory
     
     @Siblings(through: RecipeIngredient.self, from: \.$ingredient, to: \.$recipe) var recipes: [Recipe]
     
     init() {}
     
-    init(id: UUID? = nil, name: String, category: FoodCategory) {
+    init(id: UUID? = nil, name: String, unit: Unit, category: FoodCategory) {
         self.id = id
         self.name = name
+        self.unit = unit
         self.category = category
     }
     
