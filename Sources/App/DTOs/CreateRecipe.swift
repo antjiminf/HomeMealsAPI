@@ -7,7 +7,7 @@ struct CreateRecipe: Content {
     var isPublic: Bool
     var time: Int
     var allergens: [Allergen]
-    var ingredients: [CreateIngredientInRecipe]
+    var ingredients: [IngredientQuantity]
     
     func toRecipe(user: UUID) -> Recipe {
         Recipe(name: self.name,
@@ -18,12 +18,6 @@ struct CreateRecipe: Content {
                allergens: self.allergens,
                user: user)
     }
-}
-
-struct CreateIngredientInRecipe: Content {
-    var ingredient: UUID
-    var unit: Unit
-    var quantity: Double
 }
 
 extension ValidatorResults {
@@ -100,6 +94,6 @@ extension CreateRecipe: Validatable {
         validations.add("isPublic", as: Bool.self, is: .valid, required: true)
         validations.add("time", as: Int.self, is: .range(1...), required: true)
         validations.add("allergens", as: [String].self, is: .allergens)
-        validations.add("ingredients", as: [CreateIngredientInRecipe].self, is: .count(3...), required: true)
+        validations.add("ingredients", as: [IngredientQuantity].self, is: .count(3...), required: true)
     }
 }

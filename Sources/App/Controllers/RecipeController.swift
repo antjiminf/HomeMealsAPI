@@ -16,7 +16,7 @@ struct RecipeController: RouteCollection {
             recipe.delete(use: deleteRecipe)
         }
         recipes.get("exists", ":name", use: existsRecipeName)
-        recipes.get("all", use: getAllRecipes)
+        recipes.get("all", use: getAllRecipes)		    
     }
     
     @Sendable func getAllRecipes(req: Request) async throws -> [Recipe.RecipeListResponse] {
@@ -136,7 +136,7 @@ struct RecipeController: RouteCollection {
         
         return try await req.db.transaction { database in
             
-             let recipe = new.toRecipe(user: UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!)
+            let recipe = new.toRecipe(user: UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!)
             try await recipe.create(on: database)
             
             for i in new.ingredients {

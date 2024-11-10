@@ -3,7 +3,7 @@ import Fluent
 
 extension Pantry: @unchecked Sendable {}
 
-final class Pantry: Model {
+final class Pantry: Model, Content {
     
     static let schema = "pantry"
     
@@ -22,6 +22,26 @@ final class Pantry: Model {
         self.quantity = quantity
         self.unit = unit
     }
+}
+
+extension Pantry {
     
+    struct UserIngredient: Content {
+        let id: UUID
+        let ingredientId: UUID
+        let name: String
+        let quantity: Double
+        let unit: Unit
+    }
+    
+    var userIngredient: UserIngredient {
+        get throws {
+            try UserIngredient(id: requireID(),
+                               ingredientId: ingredient.requireID(),
+                               name: ingredient.name,
+                               quantity: quantity,
+                               unit: unit)
+        }
+    }
     
 }
