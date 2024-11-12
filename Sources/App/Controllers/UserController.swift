@@ -7,6 +7,7 @@ struct UserController: RouteCollection {
         
         users.group("inventory") { inventory in
             inventory.get(use: getUserInventory)
+            inventory.get("recipe-suggestions", use: getSuggestedRecipes)
             inventory.post(use: createUserIngredient)
             inventory.post("groceries-list", use: getMissingGroceries)
             inventory.put(use: updateInventoryItems)
@@ -18,6 +19,7 @@ struct UserController: RouteCollection {
     }
     
     // USER ACCOUNT ENDPOINTS
+    
     
     
     // INVENTORY ENDPOINTS
@@ -32,6 +34,40 @@ struct UserController: RouteCollection {
             .map {
                 try $0.userIngredient
             }
+    }
+    
+    @Sendable func getSuggestedRecipes(req: Request) async throws -> [Recipe.RecipeListResponse] {
+        //TODO: Recuperar user
+        let user = UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!
+        
+        let inventory = try await Pantry.query(on: req.db)
+            .filter(\.$user.$id == user)
+            .with(\.$ingredient)
+            .all()
+        
+        let inventoryDict = Dictionary(uniqueKeysWithValues: inventory.map { ($0.$ingredient.id, $0.quantity) })
+        
+        let recipes = try await Recipe.query(on: req.db)
+            .with(\.$user)
+            .with(\.$ingredientsDetails) { details in
+                details.with(\.$ingredient)
+            }
+            .all()
+        
+        let recommendedRecipes = recipes.filter { recipe in
+            for details in recipe.ingredientsDetails {
+                
+                guard let quantity = inventoryDict[details.$ingredient.id],
+                      quantity >= details.quantity else {
+                    return false
+                }
+            }
+            return true
+        }
+        
+        return try recommendedRecipes.map{
+            try $0.recipeListResponse
+        }
     }
     
     @Sendable func createUserIngredient(req: Request) async throws -> HTTPStatus {
@@ -62,7 +98,7 @@ struct UserController: RouteCollection {
         //TODO: Recuperar user
         let user = UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!
         
-//        try IngredientQuantity.validate(content: req)
+        //        try IngredientQuantity.validate(content: req)
         let requiredIng = try req.content.decode([IngredientQuantity].self)
         
         return try await req.db.transaction { db in
@@ -103,7 +139,8 @@ struct UserController: RouteCollection {
                 }
             }
             
-            return missingIng        }
+            return missingIng
+        }
     }
     
     
@@ -200,7 +237,7 @@ struct UserController: RouteCollection {
         //TODO: Recuperar user
         let user = UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!
         
-//        try IngredientQuantity.validate(content: req)
+        //        try IngredientQuantity.validate(content: req)
         let consumedIng = try req.content.decode([IngredientQuantity].self)
         
         return try await req.db.transaction { db in
