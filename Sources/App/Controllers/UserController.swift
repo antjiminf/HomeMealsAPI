@@ -205,7 +205,7 @@ struct UserController: RouteCollection {
         let newIng = try req.content.decode([IngredientQuantity].self)
         
         return try await req.db.transaction { db in
-            let inventory = try await Pantry.query(on: req.db)
+            let inventory = try await Pantry.query(on: db)
                 .filter(\.$user.$id == user)
                 .all()
             
@@ -232,6 +232,49 @@ struct UserController: RouteCollection {
         }
     }
     
+    //CREO QUE ES MÁS EFICIENTE EN OPERACIONES GRANDES
+    
+//    @Sendable func addGroceries(req: Request) async throws -> HTTPStatus {
+//        //TODO: Recuperar user
+//        let user = UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!
+//        let newIng = try req.content.decode([IngredientQuantity].self)
+//        
+//        return try await req.db.transaction { db in
+//            let inventory = try await Pantry.query(on: db)
+//                .filter(\.$user.$id == user)
+//                .all()
+//            
+//            let inventoryDict = Dictionary(uniqueKeysWithValues: inventory.map {
+//                ($0.$ingredient.id, $0)
+//            })
+//            var newItems: [Pantry] = []
+//            var updatedItems: [Pantry] = []
+//            
+//            for ing in newIng {
+//                if let existing = inventoryDict[ing.ingredient] {
+//                    existing.quantity += ing.quantity
+//                    updatedItems.append(existing)
+//                } else {
+//                    let new = Pantry(user: user,
+//                                     ingredient: ing.ingredient,
+//                                     quantity: ing.quantity,
+//                                     unit: ing.unit)
+//                    newItems.append(new)
+//                }
+//            }
+//            
+//            for chunk in updatedItems.chunks(ofCount: 100) {
+//                let _ = chunk.map { $0.update(on: db) }.flatten(on: db.eventLoop)
+//            }
+//            
+//            for chunk in newItems.chunks(ofCount: 100) {
+//                try await chunk.create(on: db)
+//            }
+//            
+//            return .noContent
+//        }
+//    }
+    
     
     @Sendable func consumeInventoryIngredients(req: Request) async throws -> HTTPStatus {
         //TODO: Recuperar user
@@ -241,7 +284,7 @@ struct UserController: RouteCollection {
         let consumedIng = try req.content.decode([IngredientQuantity].self)
         
         return try await req.db.transaction { db in
-            let inventory = try await Pantry.query(on: req.db)
+            let inventory = try await Pantry.query(on: db)
                 .filter(\.$user.$id == user)
                 .all()
             
