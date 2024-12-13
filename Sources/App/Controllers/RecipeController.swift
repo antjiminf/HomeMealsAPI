@@ -199,7 +199,15 @@ struct RecipeController: RouteCollection {
             throw Abort(.notFound, reason: "Recipe not found.")
         }
         
-        try await recipe.delete(on: req.db)
-        return .noContent
+        return try await req.db.transaction { db in
+            
+            try await recipe.$ingredientsDetails.load(on: db)
+            for ing in recipe.ingredientsDetails {
+                try await ing.delete(on: db)
+            }
+            
+            try await recipe.delete(on: db)
+            return .noContent
+        }
     }
 }
