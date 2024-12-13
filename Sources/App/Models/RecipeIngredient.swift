@@ -27,14 +27,16 @@ final class RecipeIngredient: Model {
 
 extension RecipeIngredient {
     struct IngredientDetails: Content {
+        let ingredientId: UUID
         let name: String
         let quantity: Double
         let unit: Unit
     }
     
     var ingredientDetails: IngredientDetails {
-        get {
-            IngredientDetails(
+        get throws {
+            try IngredientDetails(
+                ingredientId: ingredient.requireID(),
                 name: ingredient.name,
                 quantity: quantity,
                 unit: unit)

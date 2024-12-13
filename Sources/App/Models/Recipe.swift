@@ -103,7 +103,7 @@ extension Recipe {
                 time: time,
                 allergens: allergens,
                 owner: user.requireID(),
-                ingredients: ingredientsDetails.map {$0.ingredientDetails}) //DTO
+                ingredients: ingredientsDetails.map { try $0.ingredientDetails}) //DTO
         }
     }
 }
