@@ -14,29 +14,59 @@ struct RecipeController: RouteCollection {
             recipe.get("ingredients", use: getIngredientsInRecipe)
             recipe.put(use: updateRecipe)
             recipe.delete(use: deleteRecipe)
+            recipe.get("favorites", use: getFavoritesInRecipe)
         }
         recipes.get("exists", ":name", use: existsRecipeName)
-        recipes.get("all", use: getAllRecipes)		    
+        recipes.get("all", use: getAllRecipes)
+        recipes.group("favorites") { favorites in
+            favorites.post(use: addFavorite)
+            favorites.delete(":recipeId", use: removeFavorite)
+            favorites.get(use: getFavorites)
+        }
     }
     
     @Sendable func getAllRecipes(req: Request) async throws -> [Recipe.RecipeListResponse] {
+        let user = UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!
         return try await Recipe.query(on: req.db)
             .with(\.$user)
+            .with(\.$favorites) { fav in
+                fav.with(\.$user)
+            }
             .all()
             .map {
-                try $0.recipeListResponse
+                try $0.recipeListResponse(userId: user)
             }
+    }
+    
+    @Sendable func getFavoritesInRecipe(req: Request) async throws -> [Favorite.UserLikeInfo] {
+        guard let recipeId = req.parameters.get("id", as: UUID.self),
+              let recipe = try await Recipe.find(recipeId, on: req.db) else {
+            throw Abort(.notFound, reason: "Favorite not found")
+        }
+        
+        try await req.db.transaction { db in
+            try await recipe.$favorites.load(on: db)
+            for fav in recipe.favorites {
+                try await fav.$user.load(on: db)
+            }
+        }
+        
+        return try recipe.favorites.map { try $0.userInfo }
     }
     
     
     @Sendable func getAllPublicRecipes(req: Request) async throws -> PageDTO<Recipe.RecipeListResponse> {
+        let user = UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!
         let page = try await Recipe
             .query(on: req.db)
             .filter(\.$isPublic == true)
             .with(\.$user)
+            .with(\.$favorites) { fav in
+                fav.with(\.$user)
+            }
             .paginate(for: req)
             .map {
-                try $0.recipeListResponse
+                try $0.recipeListResponse(userId: user)
             }
         
         return PageDTO(pg: page)
@@ -44,6 +74,7 @@ struct RecipeController: RouteCollection {
     }
     
     @Sendable func searchPublicRecipes(req: Request) async throws -> PageDTO<Recipe.RecipeListResponse> {
+        let user = UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!
         var recipes = Recipe.query(on: req.db)
             .filter(\.$isPublic == true)
         
@@ -71,27 +102,41 @@ struct RecipeController: RouteCollection {
         
         let page = try await recipes
             .with(\.$user)
+            .with(\.$favorites) { fav in
+                fav.with(\.$user)
+            }
             .paginate(for: req)
             .map{ recipe in
-                return try recipe.recipeListResponse
+                return try recipe.recipeListResponse(userId: user)
             }
         return PageDTO(pg: page)
     }
     
     @Sendable func getPublicRecipe(req: Request) async throws -> Recipe.RecipeResponse {
+        let userId = UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!
         guard let recipe = try await Recipe.find(req.parameters.get("id"), on: req.db) else {
             throw Abort(.notFound, reason: "Recipe not found.")
         }
-        try await recipe.$user.load(on: req.db)
+        try await req.db.transaction { db in
+            
+            try await recipe.$user.load(on: db)
+            try await recipe.$favorites.load(on: db)
+            
+            for fav in recipe.favorites {
+                try await fav.$user.load(on: db)
+            }
+        }
         
         if recipe.isPublic {
-            return try recipe.recipeResponse
+            return try recipe.recipeResponse(userId: userId)
         }
+        
         throw Abort(.notFound, reason: "Recipe not found")
     }
     
     
     @Sendable func getIngredientsInRecipe(req: Request) async throws -> Recipe.RecipeIngredientsResponse {
+        let user = UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!
         guard let param = req.parameters.get("id"),
               let id = UUID(uuidString: param) else {
             throw Abort(.notFound, reason: "Invalid uuid")
@@ -104,10 +149,13 @@ struct RecipeController: RouteCollection {
                 detail.with(\.$ingredient)
             }
             .with(\.$user)
+            .with(\.$favorites) { fav in
+                fav.with(\.$user)
+            }
             .first()
         
         if let recipe {
-            return try recipe.recipeIngredientsResponse
+            return try recipe.recipeIngredientsResponse(userId: user)
         } else {
             throw Abort(.notFound, reason: "Recipe not found.")
         }
@@ -206,8 +254,71 @@ struct RecipeController: RouteCollection {
                 try await ing.delete(on: db)
             }
             
+            try await recipe.$favorites.load(on: db)
+            for fav in recipe.favorites {
+                try await fav.delete(on: db)
+            }
+            
             try await recipe.delete(on: db)
             return .noContent
         }
     }
+    
+    @Sendable func addFavorite(req: Request) async throws -> HTTPStatus {
+//        let user = try req.auth.require(User.self) // Asegúrate de usar autenticación
+        let user = UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!
+        let input = try req.content.decode(UUID.self)
+        
+        guard let _ = try await Favorite.query(on: req.db)
+            .filter(\.$user.$id == user)
+            .filter(\.$recipe.$id == input)
+            .first() else {
+            
+            let favorite = Favorite(userId: user, recipeId: input)
+            try await favorite.create(on: req.db)
+            return .created
+        }
+        
+        throw Abort(.badRequest, reason: "This recipe is already a favorite")
+    }
+    
+    @Sendable func removeFavorite(req: Request) async throws -> HTTPStatus {
+//        let user = try req.auth.require(User.self)
+        let user = UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!
+        guard let recipeId = req.parameters.get("recipeId", as: UUID.self),
+              let favorite = try await Favorite.query(on: req.db)
+                .filter(\.$user.$id == user)
+                .filter(\.$recipe.$id == recipeId)
+                .first() else {
+            throw Abort(.notFound, reason: "Favorite not found")
+        }
+        
+        try await favorite.delete(on: req.db)
+        return .noContent
+    }
+    
+    @Sendable func getFavorites(req: Request) async throws -> [Recipe.RecipeListResponse] {
+//        let user = try req.auth.require(User.self)
+        let user = UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!
+        return try await Recipe.query(on: req.db)
+            .join(Favorite.self, on: \Recipe.$id == \Favorite.$recipe.$id)
+            .filter(Favorite.self, \.$user.$id == user)
+            .with(\.$favorites) { fav in
+                fav.with(\.$user)
+            }
+            .with(\.$user)
+            .all()
+            .map {
+                try $0.recipeListResponse(userId: user)
+            }
+    }
 }
+
+
+//TODO:
+struct FavoriteInput: Content {
+    let recipeId: UUID
+}
+
+
+

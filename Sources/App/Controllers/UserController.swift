@@ -52,6 +52,13 @@ struct UserController: RouteCollection {
             .with(\.$ingredientsDetails) { details in
                 details.with(\.$ingredient)
             }
+            .with(\.$favorites) { fav in
+                fav.with(\.$user)
+            }
+            .group(.or) { or in
+                or.filter(\.$isPublic == true)
+                or.filter(\.$user.$id == user)
+            }
             .all()
         
         let recommendedRecipes = recipes.filter { recipe in
@@ -66,7 +73,7 @@ struct UserController: RouteCollection {
         }
         
         return try recommendedRecipes.map{
-            try $0.recipeListResponse
+            try $0.recipeListResponse(userId: user)
         }
     }
     
