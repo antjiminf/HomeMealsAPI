@@ -10,7 +10,7 @@ struct PageDTO<T: Content>: Content {
     init(pg: Page<T>) {
         self.page = pg.metadata.page
         self.perPage = pg.metadata.per
-        self.total = pg.metadata.total
+        self.total = pg.metadata.pageCount
         self.items = pg.items
     }
 }

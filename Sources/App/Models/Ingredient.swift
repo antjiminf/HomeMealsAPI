@@ -34,13 +34,21 @@ extension Ingredient {
         let recipes: [Recipe.RecipeListResponse]
     }
     
-    var recipesWithIngredient: RecipesWithIngredient {
-        get throws {
-            try RecipesWithIngredient(
-                id: requireID(), 
-                name: name,
-                category: category.rawValue,
-                recipes: try recipes.map{ try $0.recipeListResponse })
-        }
+    func recipesWithIngredient(userId: UUID) throws -> RecipesWithIngredient {
+        try RecipesWithIngredient(
+            id: requireID(), 
+            name: name,
+            category: category.rawValue,
+            recipes: try recipes.map{ try $0.recipeListResponse(userId: userId) })
     }
+    
+//    var recipesWithIngredient: RecipesWithIngredient {
+//        get throws {
+//            try RecipesWithIngredient(
+//                id: requireID(), 
+//                name: name,
+//                category: category.rawValue,
+//                recipes: try recipes.map{ try $0.recipeListResponse(userId: <#T##UUID#>) })
+//        }
+//    }
 }

@@ -106,6 +106,7 @@ struct IngredientController: RouteCollection {
     }
     
     @Sendable func getRecipesWithIngredient(req: Request) async throws -> Ingredient.RecipesWithIngredient {
+        let user = UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!
         guard let id = req.parameters.get("id"),
               let uuid = UUID(uuidString: id) else {
             throw Abort(.badRequest, reason: "Invalid uuid")
@@ -116,11 +117,12 @@ struct IngredientController: RouteCollection {
             .filter(\.$id == uuid)
             .with(\.$recipes) { recipe in
                 recipe.with(\.$user)
+                    .with(\.$favorites)
             }
             .first()
         
         if let ingredient {
-            return try ingredient.recipesWithIngredient
+            return try ingredient.recipesWithIngredient(userId: user)
         } else {
             throw Abort(.notFound, reason: "Ingredient with id \(id) not found.")
         }
