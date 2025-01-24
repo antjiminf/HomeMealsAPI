@@ -3,7 +3,7 @@ import Fluent
 
 extension User: @unchecked Sendable {}
 
-final class User: Model {
+final class User: Model, Content {
     static let schema = "user"
     
     @ID(key: .id) var id: UUID?
@@ -13,6 +13,7 @@ final class User: Model {
     @Field(key: "avatar") var avatar: String?
     @Timestamp(key: "created_at", on: .create) var createdAt: Date?
     @Children(for: \.$user) var recipes: [Recipe]
+    @Children(for: \.$user) var favorites: [Favorite]
     // Role
     @Siblings(through: Pantry.self, from: \.$user, to: \.$ingredient) var ingredients: [Ingredient]
     
