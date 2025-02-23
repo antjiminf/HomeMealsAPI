@@ -9,6 +9,7 @@ struct RecipeController: RouteCollection {
         recipes.get(use: getAllPublicRecipes)
         recipes.post(use: createRecipe)
         recipes.get("search", use: searchPublicRecipes)
+        recipes.post("total-ingredients", use: getTotalIngredientsForRecipes)
         recipes.group(":id") { recipe in
             recipe.get(use: getPublicRecipe)
             recipe.get("ingredients", use: getIngredientsInRecipe)
@@ -312,13 +313,45 @@ struct RecipeController: RouteCollection {
                 try $0.recipeListResponse(userId: user)
             }
     }
+    
+    @Sendable func getTotalIngredientsForRecipes(req: Request) async throws -> [Groceries] {
+        // TODO: Recuperar usuario autenticado
+//        let user = UUID(uuidString: "123E4567-E89B-12D3-A456-426614174000")!
+        
+        let selectedRecipes = try req.content.decode([RecipeQuantity].self)
+        
+        return try await req.db.transaction { db in
+            let recipeIds = selectedRecipes.map { $0.id }
+            let recipeIngredients = try await RecipeIngredient.query(on: db)
+                .filter(\.$recipe.$id ~~ recipeIds)
+                .with(\.$ingredient)
+                .with(\.$recipe)
+                .all()
+            
+            let recipeQuantityDict = Dictionary(uniqueKeysWithValues: selectedRecipes.map { ($0.id, $0.quantity) })
+            var ingredientTotals: [UUID: Groceries] = [:]
+            
+            for recipeIngredient in recipeIngredients {
+                let ingredientId = try recipeIngredient.ingredient.requireID()
+                let recipeId = try recipeIngredient.recipe.requireID()
+                
+                let recipeMultiplier = recipeQuantityDict[recipeId] ?? 1
+                
+                if var existing = ingredientTotals[ingredientId] {
+                    existing.requiredQuantity += recipeIngredient.quantity * Double(recipeMultiplier)
+                    ingredientTotals[ingredientId] = existing
+                } else {
+                    ingredientTotals[ingredientId] = Groceries(
+                        ingredientId: ingredientId,
+                        name: recipeIngredient.ingredient.name,
+                        requiredQuantity: recipeIngredient.quantity * Double(recipeMultiplier),
+                        unit: recipeIngredient.unit
+                    )
+                }
+            }
+            
+            return Array(ingredientTotals.values)
+        }
+    }
+
 }
-
-
-//TODO:
-struct FavoriteInput: Content {
-    let recipeId: UUID
-}
-
-
-
